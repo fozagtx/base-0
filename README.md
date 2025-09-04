@@ -1,24 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Base0 - AI Avatar Playground
+
+Fast avatar inference with optimized performance using Google Gemini AI and React Flow.
+
+## Features
+
+- 🎨 **AI-Powered Avatar Generation** - Real-time avatar creation using Google Gemini 2.5 Flash
+- 🔄 **Interactive Node Workflow** - Drag, connect, and manipulate nodes visually
+- 📁 **File Upload System** - Upload base objects for avatars to hold
+- ⚡ **Optimized Performance** - Built with Next.js 15, Bun, and Tailwind CSS
+- 🎯 **Clean Design** - Minimalist black/white aesthetic with Geist font
+- 🔗 **Smart Connections** - Connect nodes to combine objects with avatars
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- [Bun](https://bun.sh/) runtime
+- Google AI Studio API key
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Installation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd edge-ai-avatar
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. **Install dependencies**
+   ```bash
+   bun install
+   ```
+
+3. **Set up environment variables**
+   ```bash
+   cp .env.example .env.local
+   ```
+   
+   Edit `.env.local` and add your Google AI API key:
+   ```env
+   GOOGLE_GENERATIVE_AI_API_KEY=your_google_ai_api_key_here
+   ```
+   
+   Get your API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
+
+4. **Run the development server**
+   ```bash
+   bun dev
+   ```
+
+5. **Open the app**
+   Open [http://localhost:3003](http://localhost:3003) in your browser
+
+## Usage
+
+1. **Connect Wallet** - Click the connect wallet button (UI only, no real wallet integration)
+2. **Add Nodes** - Click the + button to add new avatar nodes
+3. **Upload Objects** - Click upload nodes to add base objects (medicine, tools, etc.)
+4. **Generate Avatars** - Click a node and press 'P' to open the prompt modal
+5. **Connect Workflows** - Drag between nodes to create connections
+6. **Delete Nodes** - Hover over nodes and click the × button to delete
+
+## Tech Stack
+
+- **Framework**: Next.js 15 with App Router
+- **Runtime**: Bun
+- **Styling**: Tailwind CSS
+- **UI Components**: shadcn/ui
+- **AI**: Google Gemini 2.5 Flash via @ai-sdk/google
+- **Workflow**: React Flow
+- **Font**: Geist
+- **Language**: TypeScript
 
 ## Learn More
 
