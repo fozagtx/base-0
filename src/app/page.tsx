@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ImageNode, ImageNodeData } from "@/components/ImageNode";
 import { Card } from "@/components/ui/card";
+import { WalletConnector } from "@/components/WalletConnector";
 
 const nodeTypes: NodeTypes = {
   imageNode: ImageNode,
@@ -40,7 +41,6 @@ const initialEdges: Edge[] = [];
 function Base0Flow() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const [isConnected, setIsConnected] = useState(false);
   const [showPromptModal, setShowPromptModal] = useState(false);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [prompt, setPrompt] = useState("");
@@ -58,7 +58,7 @@ function Base0Flow() {
         addEdge(
           {
             ...params,
-            style: { stroke: "#000000", strokeWidth: 2 },
+            style: { stroke: "#ffffff", strokeWidth: 2 },
           },
           eds,
         ),
@@ -120,8 +120,8 @@ function Base0Flow() {
   );
 
   const connectWallet = useCallback(() => {
-    setIsConnected(!isConnected);
-  }, [isConnected]);
+    // This function is no longer needed - OnchainKit handles wallet connection
+  }, []);
 
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
     setSelectedNodeId(node.id);
@@ -289,105 +289,128 @@ function Base0Flow() {
   }));
 
   return (
-    <div className="h-screen w-screen relative bg-white">
-      {/* Blur Header Modal */}
-      <div className="absolute top-0 left-0 right-0 z-20 bg-white/80 backdrop-blur-md border-b border-black/10">
-        <div className="flex items-center justify-center p-4 relative">
+    <div className="h-screen w-screen relative bg-black">
+      {/* Header */}
+      <div className="absolute top-0 left-0 right-0 z-20 bg-black/90 backdrop-blur-md border-b border-white/10">
+        <div className="flex items-center justify-between p-4 relative">
           <div className="flex items-center space-x-8">
             <div>
-              <h1 className="text-xl font-bold text-black">Base0</h1>
-              <p className="text-xs text-black/70">AI Avatar Playground</p>
-            </div>
-            <div className="text-xs text-black/50">
-              Click Start to create avatars
+              <h1 className="text-xl font-bold text-white">BASE0</h1>
+              {/* <p className="text-xs text-white/50">by Canvas</p> */}
             </div>
           </div>
-          <div className="absolute right-4">
-            <Button
-              onClick={connectWallet}
-              className={`shadow-sm shadow-black/10 text-sm ${
-                isConnected
-                  ? "bg-white text-black border border-black hover:bg-black/5"
-                  : "bg-black text-white hover:bg-black/90"
-              }`}
-            >
-              {isConnected ? "Connected" : "Connect Wallet"}
-            </Button>
+          <div>
+            <WalletConnector />
           </div>
         </div>
+      </div>
 
-        {showPromptModal && (
-          <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl">
+      {/* Central Content */}
+      <div className="w-full h-full flex items-center justify-center pt-16">
+        <div className="max-w-3xl w-full text-center p-10 relative">
+          <div className="absolute -left-20 top-1/3 w-32 h-px bg-gradient-to-r from-white/0 to-white/40"></div>
+          <div className="absolute -right-20 top-2/3 w-32 h-px bg-gradient-to-l from-white/0 to-white/40"></div>
+          
+          <h1 className="text-6xl font-bold text-white mt-20 mb-2">
+            Easy Avatar Creation,
+          </h1>
+          <h1 className="text-6xl font-bold text-white mb-8">
+            Zero Stress
+          </h1>
+          <p className="text-white/70 mb-10 max-w-md mx-auto">
+            Smart AI assistant that takes care of your avatar generation needs.
+          </p>
+          
+          <div className="flex justify-center gap-4">
+            <Button 
+              onClick={() => setShowPromptModal(true)} 
+              className="bg-white text-black hover:bg-white/90 rounded-full px-8 py-6"
+            >
+              Start Creating
+            </Button>
+          </div>
+          
+          <div className="mt-20 w-full h-40 relative overflow-hidden">
+            <div className="absolute w-full h-40 bg-gradient-to-b from-white/5 to-transparent rounded-full blur-xl"></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Prompt Modal */}
+      {showPromptModal && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-md">
+          <div className="bg-black/90 rounded-xl p-8 w-full max-w-md shadow-2xl border border-white/20">
+            <div className="space-y-6">
+              <div className="text-center">
+                <h3 className="text-2xl font-bold text-white">
+                  Generate Avatar
+                </h3>
+                {connectionContext && (
+                  <p className="text-sm text-white/60 mt-2">
+                    Objects will be combined
+                  </p>
+                )}
+              </div>
+
               <div className="space-y-4">
-                <div className="text-center">
-                  <h3 className="text-lg font-bold text-black">
-                    Generate Avatar
-                  </h3>
-                  {connectionContext && (
-                    <p className="text-xs text-black/60 mt-1">
-                      Objects will be combined
-                    </p>
-                  )}
+                <div>
+                  <input
+                    type="text"
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    onKeyDown={(e) =>
+                      e.key === "Enter" && handlePromptSubmit()
+                    }
+                    placeholder="Describe your avatar..."
+                    className="w-full p-4 bg-black/40 border border-white/20 focus:border-white/50 focus:outline-none text-white rounded-lg text-sm"
+                    autoFocus
+                  />
                 </div>
 
-                <div className="space-y-3">
+                {connectionContext && (
                   <div>
                     <input
                       type="text"
-                      value={prompt}
-                      onChange={(e) => setPrompt(e.target.value)}
+                      value={instruction}
+                      onChange={(e) => setInstruction(e.target.value)}
                       onKeyDown={(e) =>
                         e.key === "Enter" && handlePromptSubmit()
                       }
-                      placeholder="Describe your avatar..."
-                      className="w-full p-3 border border-black/20 focus:border-black focus:outline-none text-black rounded-lg text-sm"
-                      autoFocus
+                      placeholder="How should they interact with the object?"
+                      className="w-full p-4 bg-black/40 border border-white/20 focus:border-white/50 focus:outline-none text-white rounded-lg text-sm"
                     />
                   </div>
+                )}
+              </div>
 
-                  {connectionContext && (
-                    <div>
-                      <input
-                        type="text"
-                        value={instruction}
-                        onChange={(e) => setInstruction(e.target.value)}
-                        onKeyDown={(e) =>
-                          e.key === "Enter" && handlePromptSubmit()
-                        }
-                        placeholder="How should they interact with the object?"
-                        className="w-full p-3 border border-black/20 focus:border-black focus:outline-none text-black rounded-lg text-sm"
-                      />
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex gap-2 pt-2">
-                  <button
-                    onClick={handlePromptSubmit}
-                    disabled={!prompt.trim()}
-                    className="flex-1 bg-black text-white hover:bg-black/90 disabled:opacity-50 py-3 rounded-lg text-sm font-medium"
-                  >
-                    Generate
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowPromptModal(false);
-                      setPrompt("");
-                      setInstruction("");
-                      setConnectionContext(null);
-                    }}
-                    className="px-4 py-3 text-black/70 hover:text-black text-sm font-medium"
-                  >
-                    Cancel
-                  </button>
-                </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={handlePromptSubmit}
+                  disabled={!prompt.trim()}
+                  className="flex-1 bg-white text-black hover:bg-white/90 disabled:opacity-30 py-3 rounded-lg text-sm font-medium"
+                >
+                  Generate
+                </button>
+                <button
+                  onClick={() => {
+                    setShowPromptModal(false);
+                    setPrompt("");
+                    setInstruction("");
+                    setConnectionContext(null);
+                  }}
+                  className="px-4 py-3 text-white/70 hover:text-white border border-white/20 rounded-lg text-sm font-medium"
+                >
+                  Cancel
+                </button>
               </div>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        <div className="pt-20">
+      {/* Only show ReactFlow when actively creating */}
+      {nodes.length > 1 || edges.length > 0 ? (
+        <div className="pt-16 h-screen">
           <ReactFlow
             nodes={nodesWithHandlers}
             edges={edges}
@@ -399,47 +422,34 @@ function Base0Flow() {
             nodesDraggable={true}
             nodesConnectable={true}
             elementsSelectable={true}
-            style={{ background: "#ffffff", height: "calc(100vh - 80px)" }}
+            style={{ background: "#111111", height: "calc(100vh - 64px)" }}
           >
             <Background
               variant={BackgroundVariant.Dots}
               gap={20}
               size={1}
-              color="#e5e5e5"
+              color="#333333"
             />
             <Controls
               style={{
-                background: "#ffffff",
-                border: "2px solid #000000",
-                boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                background: "#111111",
+                border: "1px solid rgba(255,255,255,0.2)",
+                boxShadow: "0 4px 8px rgba(0,0,0,0.3)",
               }}
             />
             <MiniMap
-              nodeColor="#000000"
-              nodeStrokeColor="#ffffff"
+              nodeColor="#ffffff"
+              nodeStrokeColor="#111111"
               nodeStrokeWidth={2}
               style={{
-                background: "#ffffff",
-                border: "2px solid #000000",
-                boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                background: "#111111",
+                border: "1px solid rgba(255,255,255,0.2)",
+                boxShadow: "0 4px 8px rgba(0,0,0,0.3)",
               }}
             />
-            <Panel position="bottom-center">
-              <div className="bg-white border border-black/20 p-4 shadow-sm shadow-black/10 rounded flex flex-col items-center gap-3">
-                <Button
-                  onClick={() => setShowPromptModal(true)}
-                  className="bg-black text-white hover:bg-black/90 px-6 py-2 text-sm font-medium rounded"
-                >
-                  Start
-                </Button>
-                <p className="text-black text-xs font-mono text-center">
-                  Click Start → Enter prompt → Generate AI avatar
-                </p>
-              </div>
-            </Panel>
           </ReactFlow>
         </div>
-      </div>
+      ) : null}
     </div>
   );
 }

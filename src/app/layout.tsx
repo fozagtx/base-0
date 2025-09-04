@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { GeistSans, GeistMono } from "geist/font";
+import { OnchainProviders } from "@/providers/OnchainProviders";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -17,7 +18,9 @@ export default function RootLayout({
       <body
         className={`${GeistSans.className} antialiased`}
       >
-        {children}
+        <OnchainProviders>
+          {children}
+        </OnchainProviders>
       </body>
     </html>
   );
