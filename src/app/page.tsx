@@ -292,7 +292,7 @@ function Base0Flow() {
     <div className="h-screen w-screen relative bg-white">
       {/* Blur Header Modal */}
       <div className="absolute top-0 left-0 right-0 z-20 bg-white/80 backdrop-blur-md border-b border-black/10">
-        <div className="flex items-center justify-between p-4">
+        <div className="flex items-center justify-center p-4 relative">
           <div className="flex items-center space-x-8">
             <div>
               <h1 className="text-xl font-bold text-black">Base0</h1>
@@ -301,18 +301,18 @@ function Base0Flow() {
             <div className="text-xs text-black/50">
               Click Start to create avatars
             </div>
-            <div className="flex gap-2">
-              <Button
-                onClick={connectWallet}
-                className={`shadow-sm shadow-black/10 text-sm ${
-                  isConnected
-                    ? "bg-white text-black border border-black hover:bg-black/5"
-                    : "bg-black text-white hover:bg-black/90"
-                }`}
-              >
-                {isConnected ? "Connected" : "Connect Wallet"}
-              </Button>
-            </div>
+          </div>
+          <div className="absolute right-4">
+            <Button
+              onClick={connectWallet}
+              className={`shadow-sm shadow-black/10 text-sm ${
+                isConnected
+                  ? "bg-white text-black border border-black hover:bg-black/5"
+                  : "bg-black text-white hover:bg-black/90"
+              }`}
+            >
+              {isConnected ? "Connected" : "Connect Wallet"}
+            </Button>
           </div>
         </div>
 
