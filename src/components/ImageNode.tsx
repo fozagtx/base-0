@@ -11,7 +11,9 @@ export interface ImageNodeData {
   baseObject?: string
   onFileUpload?: (file: File, nodeId: string) => void
   onDeleteNode?: (nodeId: string) => void
+  onAddNode?: () => void
   nodeId?: string
+  loadingProgress?: number
 }
 
 export function ImageNode({ data }: { data: ImageNodeData }) {
@@ -120,8 +122,18 @@ export function ImageNode({ data }: { data: ImageNodeData }) {
         {data.nodeType !== 'upload' && (
           <>
             {data.isGenerating && (
-              <div className="w-full h-48 bg-black/5 border border-black/20 rounded flex items-center justify-center">
+              <div className="w-full h-48 bg-black/5 border border-black/20 rounded flex flex-col items-center justify-center space-y-4">
                 <div className="animate-spin w-8 h-8 border-2 border-black border-t-transparent rounded-full"></div>
+                {data.loadingProgress !== undefined && (
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-black font-mono">
+                      {Math.round(data.loadingProgress)}%
+                    </div>
+                    <div className="text-xs text-black/60 font-mono">
+                      Generating avatar...
+                    </div>
+                  </div>
+                )}
               </div>
             )}
             
@@ -158,6 +170,18 @@ export function ImageNode({ data }: { data: ImageNodeData }) {
         position={Position.Bottom} 
         className="w-3 h-3 bg-black border-white border-2"
       />
+      
+      {/* Plus button below node */}
+      {data.imageUrl && (
+        <div className="absolute -bottom-12 left-1/2 -translate-x-1/2">
+          <button
+            onClick={data.onAddNode}
+            className="w-8 h-8 bg-black hover:bg-black/80 text-white rounded-full flex items-center justify-center text-lg shadow-md shadow-black/20"
+          >
+            +
+          </button>
+        </div>
+      )}
     </div>
   )
 }

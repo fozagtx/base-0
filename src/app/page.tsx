@@ -30,37 +30,12 @@ const initialNodes: Node<ImageNodeData>[] = [
   {
     id: "1",
     type: "imageNode",
-    position: { x: 100, y: 100 },
-    data: { nodeType: "avatar", nodeId: "1" },
-  },
-  {
-    id: "2",
-    type: "imageNode",
     position: { x: 400, y: 200 },
-    data: { nodeType: "avatar", nodeId: "2" },
-  },
-  {
-    id: "3",
-    type: "imageNode",
-    position: { x: 700, y: 100 },
-    data: { nodeType: "upload", nodeId: "3" },
+    data: { nodeType: "avatar", nodeId: "1" },
   },
 ];
 
-const initialEdges: Edge[] = [
-  {
-    id: "e1-2",
-    source: "1",
-    target: "2",
-    style: { stroke: "#000000", strokeWidth: 2 },
-  },
-  {
-    id: "e2-3",
-    source: "2",
-    target: "3",
-    style: { stroke: "#000000", strokeWidth: 2 },
-  },
-];
+const initialEdges: Edge[] = [];
 
 function Base0Flow() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -74,6 +49,7 @@ function Base0Flow() {
     sourceId: string;
     targetId: string;
   } | null>(null);
+  const [loadingProgress, setLoadingProgress] = useState(0);
 
   const onConnect = useCallback(
     (params: Connection) => {
@@ -166,6 +142,18 @@ function Base0Flow() {
         ),
       );
 
+      // Start loading counter animation
+      setLoadingProgress(0);
+      const interval = setInterval(() => {
+        setLoadingProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            return 100;
+          }
+          return prev + Math.random() * 15 + 5; // Random increment between 5-20
+        });
+      }, 200);
+
       try {
         const response = await fetch("/api/generate-image", {
           method: "POST",
@@ -175,24 +163,32 @@ function Base0Flow() {
 
         const result = await response.json();
 
-        if (result.imageUrl) {
-          setNodes((nds) =>
-            nds.map((node) =>
-              node.id === nodeId
-                ? {
-                    ...node,
-                    data: {
-                      ...node.data,
-                      imageUrl: result.imageUrl,
-                      isGenerating: false,
-                    },
-                  }
-                : node,
-            ),
-          );
-        }
+        // Complete the loading animation
+        clearInterval(interval);
+        setLoadingProgress(100);
+
+        setTimeout(() => {
+          if (result.imageUrl) {
+            setNodes((nds) =>
+              nds.map((node) =>
+                node.id === nodeId
+                  ? {
+                      ...node,
+                      data: {
+                        ...node.data,
+                        imageUrl: result.imageUrl,
+                        isGenerating: false,
+                      },
+                    }
+                  : node,
+              ),
+            );
+          }
+          setLoadingProgress(0);
+        }, 500);
       } catch (error) {
         console.error("Failed to generate image:", error);
+        clearInterval(interval);
         setNodes((nds) =>
           nds.map((node) =>
             node.id === nodeId
@@ -200,6 +196,7 @@ function Base0Flow() {
               : node,
           ),
         );
+        setLoadingProgress(0);
       }
     },
     [setNodes],
@@ -227,6 +224,14 @@ function Base0Flow() {
         }
 
         targetNodeId = connectionContext.targetId;
+      }
+
+      // If no target node is selected, find the first available avatar node
+      if (!targetNodeId) {
+        const avatarNode = nodes.find(
+          (node) => node.data.nodeType === "avatar" && !node.data.imageUrl,
+        );
+        targetNodeId = avatarNode?.id || nodes[0]?.id;
       }
 
       if (targetNodeId) {
@@ -277,6 +282,8 @@ function Base0Flow() {
       ...node.data,
       onFileUpload: handleFileUpload,
       onDeleteNode: handleDeleteNode,
+      onAddNode: addNode,
+      loadingProgress: node.data.isGenerating ? loadingProgress : undefined,
       nodeId: node.id,
     },
   }));
@@ -292,7 +299,7 @@ function Base0Flow() {
               <p className="text-xs text-black/70">AI Avatar Playground</p>
             </div>
             <div className="text-xs text-black/50">
-              Click node → Press P → Generate
+              Click Start to create avatars
             </div>
             <div className="flex gap-2">
               <Button
@@ -304,12 +311,6 @@ function Base0Flow() {
                 }`}
               >
                 {isConnected ? "Connected" : "Connect Wallet"}
-              </Button>
-              <Button
-                onClick={addNode}
-                className="bg-black text-white hover:bg-black/90 shadow-sm shadow-black/10 w-8 h-8 p-0 text-lg"
-              >
-                +
               </Button>
             </div>
           </div>
@@ -336,6 +337,9 @@ function Base0Flow() {
                       type="text"
                       value={prompt}
                       onChange={(e) => setPrompt(e.target.value)}
+                      onKeyDown={(e) =>
+                        e.key === "Enter" && handlePromptSubmit()
+                      }
                       placeholder="Describe your avatar..."
                       className="w-full p-3 border border-black/20 focus:border-black focus:outline-none text-black rounded-lg text-sm"
                       autoFocus
@@ -348,6 +352,9 @@ function Base0Flow() {
                         type="text"
                         value={instruction}
                         onChange={(e) => setInstruction(e.target.value)}
+                        onKeyDown={(e) =>
+                          e.key === "Enter" && handlePromptSubmit()
+                        }
                         placeholder="How should they interact with the object?"
                         className="w-full p-3 border border-black/20 focus:border-black focus:outline-none text-black rounded-lg text-sm"
                       />
@@ -418,9 +425,15 @@ function Base0Flow() {
               }}
             />
             <Panel position="bottom-center">
-              <div className="bg-white border border-black/20 p-3 shadow-sm shadow-black/10 rounded">
-                <p className="text-black text-xs font-mono">
-                  Click node → Press P → Enter prompt → Generate AI avatar
+              <div className="bg-white border border-black/20 p-4 shadow-sm shadow-black/10 rounded flex flex-col items-center gap-3">
+                <Button
+                  onClick={() => setShowPromptModal(true)}
+                  className="bg-black text-white hover:bg-black/90 px-6 py-2 text-sm font-medium rounded"
+                >
+                  Start
+                </Button>
+                <p className="text-black text-xs font-mono text-center">
+                  Click Start → Enter prompt → Generate AI avatar
                 </p>
               </div>
             </Panel>
