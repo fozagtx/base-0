@@ -14,9 +14,15 @@ const wagmiConfig = createConfig({
   connectors: [
     coinbaseWallet({
       appName: 'Base0 - AI Avatar Playground',
-      preference: 'smartWalletOnly', // This ensures Smart Wallet usage
+      preference: 'all', // Allow both Smart Wallet and regular Coinbase Wallet
     }),
-    metaMask(),
+    metaMask({
+      dappMetadata: {
+        name: 'Base0 - AI Avatar Playground',
+        url: typeof window !== 'undefined' ? window.location.origin : '',
+        iconUrl: typeof window !== 'undefined' ? `${window.location.origin}/favicon.ico` : '',
+      },
+    }),
   ],
   transports: {
     [base.id]: http(),
