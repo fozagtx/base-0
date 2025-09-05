@@ -79,9 +79,7 @@ export function ImageGeneratorNode({ id, data }: ImageGeneratorNodeProps) {
       <div className="bg-purple-800/80 rounded-t-lg px-4 py-2 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
-          <span className="text-white text-sm font-medium">
-            DeepAI Image Generator
-          </span>
+          <span className="text-white text-sm font-medium">Base0</span>
         </div>
         <div className="flex items-center space-x-2">
           <span className="bg-purple-700 text-white text-xs px-2 py-1 rounded">
@@ -125,7 +123,7 @@ export function ImageGeneratorNode({ id, data }: ImageGeneratorNodeProps) {
                   src={data.baseImageUrl}
                   alt="Base image"
                   className="w-full h-full object-cover"
-                  style={{ maxWidth: '100%', maxHeight: '100%' }}
+                  style={{ maxWidth: "100%", maxHeight: "100%" }}
                 />
               </div>
               <p className="text-gray-400 text-xs mt-1">
