@@ -13,6 +13,7 @@ interface ImageGeneratorNodeProps {
     preference?: "anime" | "photography" | "graphic" | "cinematic";
     negative_prompt?: string;
     isGenerating?: boolean;
+    baseImageUrl?: string; // Add base image URL
     onGenerate?: (
       nodeId: string,
       prompt: string,
@@ -22,8 +23,10 @@ interface ImageGeneratorNodeProps {
         image_generator_version?: "standard" | "hd" | "genius";
         genius_preference?: "anime" | "photography" | "graphic" | "cinematic";
         negative_prompt?: string;
+        baseImageUrl?: string; // Add base image URL to options
       },
     ) => void;
+    onRemoveBaseImage?: (nodeId: string) => void;
   };
 }
 
@@ -49,11 +52,13 @@ export function ImageGeneratorNode({ id, data }: ImageGeneratorNodeProps) {
         image_generator_version: version,
         genius_preference: preference,
         negative_prompt: negativePrompt || undefined,
+        baseImageUrl: data.baseImageUrl, // Pass base image URL
       };
       data.onGenerate(id, prompt, options);
     }
   }, [
     data.onGenerate,
+    data.baseImageUrl,
     id,
     prompt,
     width,
@@ -64,7 +69,7 @@ export function ImageGeneratorNode({ id, data }: ImageGeneratorNodeProps) {
   ]);
 
   return (
-    <div className="bg-purple-900/60 rounded-lg shadow-lg min-w-[320px] backdrop-blur-sm">
+    <div className="bg-purple-900/60 rounded-lg shadow-lg min-w-[320px] max-w-[380px] backdrop-blur-sm">
       {/* Header */}
       <div className="bg-purple-800/80 rounded-t-lg px-4 py-2 flex items-center justify-between">
         <div className="flex items-center space-x-2">
@@ -93,6 +98,37 @@ export function ImageGeneratorNode({ id, data }: ImageGeneratorNodeProps) {
             <span className="text-white text-xs">OUTPUT</span>
           </div>
         </div>
+
+        {/* Base Image Preview */}
+        {data.baseImageUrl && (
+          <div className="mb-4">
+            <label className="text-white text-xs mb-1 block">Base Image</label>
+            <div className="bg-gray-800 rounded p-2 relative overflow-hidden">
+              <button
+                onClick={() => {
+                  if (data.onRemoveBaseImage) {
+                    data.onRemoveBaseImage(id);
+                  }
+                }}
+                className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs z-10 transition-colors"
+                title="Remove base image"
+              >
+                ×
+              </button>
+              <div className="w-full h-24 overflow-hidden rounded">
+                <img
+                  src={data.baseImageUrl}
+                  alt="Base image"
+                  className="w-full h-full object-cover"
+                  style={{ maxWidth: '100%', maxHeight: '100%' }}
+                />
+              </div>
+              <p className="text-gray-400 text-xs mt-1">
+                Avatar will interact with this image
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Prompt textarea */}
         <div className="mb-4">

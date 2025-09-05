@@ -126,10 +126,31 @@ function PlaygroundFlow() {
               : node,
           ),
         );
+
+        // Find connected image generator nodes and update them with base image
+        const connectedEdges = edges.filter((edge: Edge) => 
+          edge.source === nodeId && edge.sourceHandle === "image"
+        );
+        
+        connectedEdges.forEach((edge: Edge) => {
+          setNodes((nds: Node[]) =>
+            nds.map((node: Node) =>
+              node.id === edge.target
+                ? { 
+                    ...node, 
+                    data: { 
+                      ...node.data, 
+                      baseImageUrl: imageUrl,
+                    } 
+                  }
+                : node,
+            ),
+          );
+        });
       };
       reader.readAsDataURL(file);
     },
-    [setNodes],
+    [setNodes, edges],
   );
 
   const handleGenerate = useCallback(
@@ -142,8 +163,36 @@ function PlaygroundFlow() {
         image_generator_version?: "standard" | "hd" | "genius";
         genius_preference?: "anime" | "photography" | "graphic" | "cinematic";
         negative_prompt?: string;
+        baseImageUrl?: string;
       } = {},
     ) => {
+      // Find connected base image if any
+      const connectedImageEdge = edges.find((edge: Edge) => 
+        edge.target === nodeId && edge.targetHandle === "baseImage"
+      );
+      
+      let baseImageUrl = options.baseImageUrl;
+      if (connectedImageEdge) {
+        const sourceNode = nodes.find((node: Node) => node.id === connectedImageEdge.source);
+        if (sourceNode?.data?.imageUrl) {
+          baseImageUrl = sourceNode.data.imageUrl;
+          
+          // Update the generator node to show the base image
+          setNodes((nds: Node[]) =>
+            nds.map((node: Node) =>
+              node.id === nodeId
+                ? { ...node, data: { ...node.data, baseImageUrl } }
+                : node,
+            ),
+          );
+        }
+      }
+
+      // Modify prompt to include base image context if available
+      let enhancedPrompt = prompt;
+      if (baseImageUrl) {
+        enhancedPrompt = `Create a lifestyle avatar holding, using, or interacting with the product/item shown in the reference image. ${prompt}`;
+      }
       // Set generating state
       setNodes((nds: Node[]) =>
         nds.map((node: Node) =>
@@ -154,10 +203,14 @@ function PlaygroundFlow() {
       );
 
       try {
-        console.log('Generating image with prompt:', prompt);
+        console.log('Generating image with prompt:', enhancedPrompt);
+        console.log('Base image URL:', baseImageUrl);
         
         // Use the hook to generate the image
-        const result = await generateImage(prompt, options);
+        const result = await generateImage(enhancedPrompt, {
+          ...options,
+          baseImageUrl, // Pass the base image URL
+        });
 
         if (result) {
           // Update the generator node with the result
@@ -223,6 +276,67 @@ function PlaygroundFlow() {
     [generateImage, error, edges, setNodes],
   );
 
+  const handleRemoveBaseImage = useCallback(
+    (nodeId: string) => {
+      // Remove the base image from the generator node
+      setNodes((nds: Node[]) =>
+        nds.map((node: Node) =>
+          node.id === nodeId
+            ? { 
+                ...node, 
+                data: { 
+                  ...node.data, 
+                  baseImageUrl: undefined,
+                } 
+              }
+            : node,
+        ),
+      );
+    },
+    [setNodes],
+  );
+
+  const handleRemoveImage = useCallback(
+    (nodeId: string) => {
+      // Remove the image from the load image node
+      setNodes((nds: Node[]) =>
+        nds.map((node: Node) =>
+          node.id === nodeId
+            ? { 
+                ...node, 
+                data: { 
+                  ...node.data, 
+                  imageUrl: undefined,
+                } 
+              }
+            : node,
+        ),
+      );
+
+      // Also remove base image from connected generator nodes
+      const connectedEdges = edges.filter((edge: Edge) => 
+        edge.source === nodeId && edge.sourceHandle === "image"
+      );
+      
+      connectedEdges.forEach((edge: Edge) => {
+        setNodes((nds: Node[]) =>
+          nds.map((node: Node) =>
+            node.id === edge.target
+              ? { 
+                  ...node, 
+                  data: { 
+                    ...node.data, 
+                    baseImageUrl: undefined,
+                  } 
+                }
+              : node,
+          ),
+        );
+      });
+    },
+    [setNodes, edges],
+  );
+
   // Redirect to login if wallet is not connected
   useEffect(() => {
     if (!isConnected) {
@@ -246,6 +360,8 @@ function PlaygroundFlow() {
       ...node.data,
       onFileUpload: handleFileUpload,
       onGenerate: handleGenerate,
+      onRemoveBaseImage: handleRemoveBaseImage,
+      onRemoveImage: handleRemoveImage,
     },
   }));
 

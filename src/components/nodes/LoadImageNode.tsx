@@ -8,6 +8,7 @@ interface LoadImageNodeProps {
   data: {
     imageUrl?: string;
     onFileUpload?: (file: File, nodeId: string) => void;
+    onRemoveImage?: (nodeId: string) => void;
   };
 }
 
@@ -32,7 +33,7 @@ export function LoadImageNode({ id, data }: LoadImageNodeProps) {
   }, [id, data.onFileUpload]);
 
   return (
-    <div className="bg-gray-700 rounded-lg shadow-lg min-w-[280px]">
+    <div className="bg-gray-700 rounded-lg shadow-lg min-w-[280px] max-w-[320px]">
       {/* Header */}
       <div className="bg-gray-600 rounded-t-lg px-4 py-2 flex items-center justify-between">
         <div className="flex items-center space-x-2">
@@ -77,7 +78,7 @@ export function LoadImageNode({ id, data }: LoadImageNodeProps) {
 
         {/* Image upload area */}
         <div
-          className={`bg-blue-600 rounded-lg h-64 flex flex-col items-center justify-center border-2 border-dashed transition-colors ${
+          className={`bg-blue-600 rounded-lg h-64 flex flex-col items-center justify-center border-2 border-dashed transition-colors overflow-hidden ${
             dragOver ? 'border-white bg-blue-500' : 'border-blue-400'
           }`}
           onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
@@ -85,11 +86,25 @@ export function LoadImageNode({ id, data }: LoadImageNodeProps) {
           onDrop={handleDrop}
         >
           {data.imageUrl ? (
-            <img
-              src={data.imageUrl}
-              alt="Uploaded"
-              className="max-w-full max-h-full object-contain rounded"
-            />
+            <div className="relative w-full h-full">
+              <button
+                onClick={() => {
+                  if (data.onRemoveImage) {
+                    data.onRemoveImage(id);
+                  }
+                }}
+                className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs z-10 transition-colors"
+                title="Remove image"
+              >
+                ×
+              </button>
+              <img
+                src={data.imageUrl}
+                alt="Uploaded"
+                className="w-full h-full object-cover rounded"
+                style={{ maxWidth: '100%', maxHeight: '100%' }}
+              />
+            </div>
           ) : (
             <>
               <div className="text-6xl mb-4 text-yellow-400">📁</div>
@@ -116,7 +131,12 @@ export function LoadImageNode({ id, data }: LoadImageNodeProps) {
           )}
         </div>
 
-        <div className="text-center text-gray-400 text-xs mt-2">1024 x 1024</div>
+        <div className="text-center text-gray-400 text-xs mt-2">
+          1024 x 1024
+          {data.imageUrl && (
+            <div className="text-green-400 mt-1">✓ Ready for avatar generation</div>
+          )}
+        </div>
       </div>
 
       {/* React Flow Handles */}
