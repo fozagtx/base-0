@@ -13,6 +13,7 @@ interface ImageGeneratorNodeProps {
     preference?: "anime" | "photography" | "graphic" | "cinematic";
     negative_prompt?: string;
     isGenerating?: boolean;
+    isSelected?: boolean;
     onGenerate?: (
       nodeId: string,
       prompt: string,
@@ -63,8 +64,14 @@ export function ImageGeneratorNode({ id, data }: ImageGeneratorNodeProps) {
     negativePrompt,
   ]);
 
+  const borderClass = data.isSelected
+    ? "border-2 border-blue-500 shadow-blue-500/50 shadow-lg"
+    : "border border-gray-600";
+
   return (
-    <div className="bg-purple-900/60 rounded-lg shadow-lg min-w-[320px] backdrop-blur-sm">
+    <div
+      className={`bg-purple-900/60 rounded-lg shadow-lg min-w-[320px] backdrop-blur-sm ${borderClass} transition-all duration-300`}
+    >
       {/* Header */}
       <div className="bg-purple-800/80 rounded-t-lg px-4 py-2 flex items-center justify-between">
         <div className="flex items-center space-x-2">
@@ -197,7 +204,14 @@ export function ImageGeneratorNode({ id, data }: ImageGeneratorNodeProps) {
               : "bg-purple-600 text-white hover:bg-purple-500"
           }`}
         >
-          {data.isGenerating ? "Generating..." : "Generate Image"}
+          {data.isGenerating ? (
+            <div className="flex items-center justify-center space-x-2">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span>Cooking...</span>
+            </div>
+          ) : (
+            "Start"
+          )}
         </button>
       </div>
 
