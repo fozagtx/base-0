@@ -19,6 +19,9 @@ import { PreviewImageNode } from "@/components/nodes/PreviewImageNode";
 import { useAccount } from "wagmi";
 import { useRouter } from "next/navigation";
 import { useImageGeneration } from "@/hooks/useImageGeneration";
+import { useSynapseStorage } from "@/hooks/useSynapseStorage";
+import { UserPrompt, GeneratedImage } from "@/types/prompt";
+import { Button } from "@/components/ui/button";
 
 const nodeTypes: NodeTypes = {
   loadImage: LoadImageNode,
@@ -77,11 +80,26 @@ function PlaygroundFlow() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
   const router = useRouter();
 
   // Use the custom hook for image generation
   const { generateImage, isGenerating, error } = useImageGeneration();
+  
+  // Use the storage hook
+  const { 
+    savePrompt, 
+    saveGeneratedImage, 
+    isStoring, 
+    initializeStorage 
+  } = useSynapseStorage();
+
+  // Initialize storage when component mounts
+  useEffect(() => {
+    if (isConnected) {
+      initializeStorage();
+    }
+  }, [isConnected, initializeStorage]);
 
   const onConnect = useCallback(
     (params: Connection) => {
@@ -219,6 +237,46 @@ function PlaygroundFlow() {
         });
 
         if (result) {
+          // Save prompt to storage
+          const promptToSave: UserPrompt = {
+            id: `prompt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            prompt: prompt,
+            enhancedPrompt: enhancedPrompt,
+            userId: address || '',
+            timestamp: Date.now(),
+            baseImageUrl,
+            metadata: {
+              width: options.width || 512,
+              height: options.height || 512,
+              version: options.image_generator_version || 'standard',
+              preference: options.genius_preference || 'photography',
+            },
+          };
+
+          // Save generated image to storage
+          const imageToSave: GeneratedImage = {
+            id: `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            imageUrl: result.imageUrl,
+            promptId: promptToSave.id,
+            userId: address || '',
+            timestamp: Date.now(),
+            deepaiId: result.metadata?.id || '',
+            metadata: {
+              ...result.metadata,
+              ...options,
+              baseImageUrl,
+              nodeId: nodeId,
+            },
+          };
+
+          // Save to storage (async, don't wait)
+          savePrompt(promptToSave).catch(err => 
+            console.error('Failed to save prompt:', err)
+          );
+          saveGeneratedImage(imageToSave).catch(err => 
+            console.error('Failed to save image:', err)
+          );
+
           // Update the generator node with the result
           setNodes((nds: Node[]) =>
             nds.map((node: Node) =>
@@ -230,6 +288,8 @@ function PlaygroundFlow() {
                       isGenerating: false,
                       generatedImage: result.imageUrl,
                       metadata: result.metadata,
+                      savedPromptId: promptToSave.id,
+                      savedImageId: imageToSave.id,
                     },
                   }
                 : node,
@@ -332,6 +392,25 @@ function PlaygroundFlow() {
       className="h-screen w-screen bg-gray-900"
       style={{ background: "#1a1a1a" }}
     >
+      {/* Header with navigation */}
+      <div className="absolute top-4 right-4 z-10 flex gap-3">
+        <Button 
+          onClick={() => router.push('/history')}
+          className="bg-blue-600 hover:bg-blue-700 text-white"
+          size="sm"
+        >
+          View History
+        </Button>
+        <Button 
+          onClick={() => router.push('/')}
+          variant="outline"
+          className="border-gray-600 text-gray-300 hover:bg-gray-800"
+          size="sm"
+        >
+          Logout
+        </Button>
+      </div>
+
       <ReactFlow
         nodes={nodesWithHandlers}
         edges={edges}
@@ -343,6 +422,13 @@ function PlaygroundFlow() {
         fitView
         className="bg-gray-900"
       />
+      
+      {/* Storage status indicator */}
+      {isStoring && (
+        <div className="absolute bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg">
+          Saving to storage...
+        </div>
+      )}
     </div>
   );
 }

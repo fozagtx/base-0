@@ -6,7 +6,7 @@
       "dependencies": {
         "@ai-sdk/google": "^2.0.11",
         "@coinbase/onchainkit": "^0.38.19",
-        "@filoz/synapse-sdk": "^0.24.0",
+        "@filoz/synapse-sdk": "^0.24.1",
         "@radix-ui/react-slot": "^1.2.3",
         "@react-three/fiber": "^9.3.0",
         "@react-three/postprocessing": "^3.0.4",
@@ -111,7 +111,7 @@
 
     "@farcaster/quick-auth": ["@farcaster/quick-auth@0.0.6", "", { "dependencies": { "jose": "^5.2.3", "zod": "^3.25.1" }, "peerDependencies": { "typescript": "5.8.3" } }, "sha512-tiZndhpfDtEhaKlkmS5cVDuS+A/tafqZT3y9I44rC69m3beJok6e8dIH2JhxVy3EvOWTyTBnrmNn6GOOh+qK6A=="],
 
-    "@filoz/synapse-sdk": ["@filoz/synapse-sdk@0.24.0", "", { "dependencies": { "@web3-storage/data-segment": "^5.3.0", "ethers": "^6.14.3", "multiformats": "^13.3.6", "viem": "^2.37.2" } }, "sha512-NwDVFPF/SBJhb5d3djnSCGcWYiN79kj5EqLdy2oo6EstgTxNwtWgE9uynqnOp/b1yTNEjTxxCRIGARrzvtj9Sg=="],
+    "@filoz/synapse-sdk": ["@filoz/synapse-sdk@0.24.1", "", { "dependencies": { "@web3-storage/data-segment": "^5.3.0", "ethers": "^6.14.3", "multiformats": "^13.3.6", "viem": "^2.37.2" } }, "sha512-+59o3zb+nLCL5RFcvR+ee8jdPtRYgoKavs0yxKZdxGQSUJ2iHa0xThgTKXdRUOolOjP5ixNPUcGhMImeGdq3SQ=="],
 
     "@gemini-wallet/core": ["@gemini-wallet/core@0.2.0", "", { "dependencies": { "@metamask/rpc-errors": "7.0.2", "eventemitter3": "5.0.1" }, "peerDependencies": { "viem": ">=2.0.0" } }, "sha512-vv9aozWnKrrPWQ3vIFcWk7yta4hQW1Ie0fsNNPeXnjAxkbXr2hqMagEptLuMxpEP2W3mnRu05VDNKzcvAuuZDw=="],
 
