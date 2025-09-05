@@ -1,17 +1,14 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import ReactFlow, {
+import React, { useCallback, useEffect } from "react";
+import {
+  ReactFlow,
   Node,
   Edge,
   addEdge,
   Connection,
   useNodesState,
   useEdgesState,
-  Controls,
-  Background,
-  BackgroundVariant,
-  MiniMap,
   NodeTypes,
   ReactFlowProvider,
 } from "reactflow";
@@ -20,11 +17,9 @@ import { LoadImageNode } from "@/components/nodes/LoadImageNode";
 import { ImageGeneratorNode } from "@/components/nodes/ImageGeneratorNode";
 import { PreviewImageNode } from "@/components/nodes/PreviewImageNode";
 import { PreviewAnyNode } from "@/components/nodes/PreviewAnyNode";
-import { PlaygroundMetaMaskConnector } from "@/components/PlaygroundMetaMaskConnector";
-import { useSynapseStorage } from "@/hooks/useSynapseStorage";
 import { useAccount } from "wagmi";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useImageGeneration } from "@/hooks/useImageGeneration";
 
 const nodeTypes: NodeTypes = {
   loadImage: LoadImageNode,
@@ -98,17 +93,15 @@ const initialEdges: Edge[] = [
 function PlaygroundFlow() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const { address, isConnected } = useAccount();
+  const { isConnected } = useAccount();
   const router = useRouter();
-  const {
-    storeImage,
-    isStoring,
-    isInitialized: synapseInitialized,
-  } = useSynapseStorage();
+  
+  // Use the custom hook for image generation
+  const { generateImage, isGenerating, error } = useImageGeneration();
 
   const onConnect = useCallback(
     (params: Connection) => {
-      setEdges((eds) =>
+      setEdges((eds: Edge[]) =>
         addEdge(
           {
             ...params,
@@ -126,8 +119,8 @@ function PlaygroundFlow() {
       const reader = new FileReader();
       reader.onload = (e) => {
         const imageUrl = e.target?.result as string;
-        setNodes((nds) =>
-          nds.map((node) =>
+        setNodes((nds: Node[]) =>
+          nds.map((node: Node) =>
             node.id === nodeId
               ? { ...node, data: { ...node.data, imageUrl } }
               : node,
@@ -152,8 +145,8 @@ function PlaygroundFlow() {
       } = {},
     ) => {
       // Set generating state
-      setNodes((nds) =>
-        nds.map((node) =>
+      setNodes((nds: Node[]) =>
+        nds.map((node: Node) =>
           node.id === nodeId
             ? { ...node, data: { ...node.data, isGenerating: true } }
             : node,
@@ -161,150 +154,93 @@ function PlaygroundFlow() {
       );
 
       try {
-        // Find connected base image input
-        const connectedEdge = edges.find(
-          (e) => e.target === nodeId && e.targetHandle === "baseImage",
-        );
-        let baseObject = "";
+        console.log('Generating image with prompt:', prompt);
+        
+        // Use the hook to generate the image
+        const result = await generateImage(prompt, options);
 
-        if (connectedEdge) {
-          const sourceNode = nodes.find((n) => n.id === connectedEdge.source);
-          if (sourceNode?.data.imageUrl) {
-            baseObject = sourceNode.data.imageUrl;
-          }
-        }
+        if (result) {
+          // Update the generator node with the result
+          setNodes((nds: Node[]) =>
+            nds.map((node: Node) =>
+              node.id === nodeId
+                ? { 
+                    ...node, 
+                    data: { 
+                      ...node.data, 
+                      isGenerating: false,
+                      generatedImage: result.imageUrl,
+                      metadata: result.metadata,
+                    } 
+                  }
+                : node,
+            ),
+          );
 
-        const response = await fetch("/api/generate-image", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            prompt,
-            baseObject: baseObject || undefined,
-            walletAddress: address,
-            width: options.width || 512,
-            height: options.height || 512,
-            image_generator_version:
-              options.image_generator_version || "standard",
-            genius_preference: options.genius_preference || "photography",
-            negative_prompt: options.negative_prompt || undefined,
-          }),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || `HTTP ${response.status}`);
-        }
-
-        const result = await response.json();
-
-        // Update preview nodes with generated image
-        setNodes((nds) =>
-          nds.map((node) => {
-            if (node.id === nodeId) {
-              return { ...node, data: { ...node.data, isGenerating: false } };
-            }
-
-            // Update connected preview nodes
-            const isConnectedPreview = edges.some(
-              (e) => e.source === nodeId && e.target === node.id,
+          // Update any connected preview nodes
+          const connectedEdges = edges.filter((edge: Edge) => edge.source === nodeId);
+          connectedEdges.forEach((edge: Edge) => {
+            setNodes((nds: Node[]) =>
+              nds.map((node: Node) =>
+                node.id === edge.target
+                  ? { 
+                      ...node, 
+                      data: { 
+                        ...node.data, 
+                        imageUrl: result.imageUrl,
+                        response: JSON.stringify(result, null, 2),
+                      } 
+                    }
+                  : node,
+              ),
             );
+          });
 
-            if (isConnectedPreview) {
-              if (node.type === "previewImage") {
-                return {
-                  ...node,
-                  data: {
-                    ...node.data,
-                    imageUrl: result.imageUrl,
-                    filecoinStorage: result.filecoinStorage || null,
-                  },
-                };
-              }
-              if (node.type === "previewAny") {
-                const responseText =
-                  result.success && result.imageUrl
-                    ? "Image generated successfully with DeepAI!"
-                    : result.error || "Generation failed";
-                const metadataInfo = result.metadata
-                  ? `\nGenerated: ${new Date(result.metadata.generatedAt).toLocaleTimeString()}`
-                  : "";
-                const filecoinInfo = result.filecoinStorage
-                  ? `\nStored on Filecoin: ${result.filecoinStorage.pieceCid.slice(0, 8)}...`
-                  : "";
-
-                return {
-                  ...node,
-                  data: {
-                    ...node.data,
-                    response: responseText + metadataInfo + filecoinInfo,
-                    filecoinStorage: result.filecoinStorage || null,
-                  },
-                };
-              }
-            }
-
-            return node;
-          }),
-        );
-      } catch (error) {
-        console.error("Failed to generate image:", error);
-
-        // Update error state
-        setNodes((nds) =>
-          nds.map((node) => {
-            if (node.id === nodeId) {
-              return { ...node, data: { ...node.data, isGenerating: false } };
-            }
-
-            const isConnectedPreview = edges.some(
-              (e) =>
-                e.source === nodeId &&
-                e.target === node.id &&
-                node.type === "previewAny",
-            );
-
-            if (isConnectedPreview) {
-              return {
-                ...node,
-                data: {
-                  ...node.data,
-                  response: `Error: ${error instanceof Error ? error.message : "Generation failed"}`,
-                },
-              };
-            }
-
-            return node;
-          }),
+          console.log('Image generation successful:', result.imageUrl);
+        } else {
+          throw new Error(error || 'Failed to generate image');
+        }
+      } catch (err) {
+        console.error('Image generation failed:', err);
+        
+        // Update node with error state
+        setNodes((nds: Node[]) =>
+          nds.map((node: Node) =>
+            node.id === nodeId
+              ? { 
+                  ...node, 
+                  data: { 
+                    ...node.data, 
+                    isGenerating: false,
+                    error: err instanceof Error ? err.message : 'Unknown error',
+                  } 
+                }
+              : node,
+          ),
         );
       }
     },
-    [nodes, edges, setNodes],
+    [generateImage, error, edges, setNodes],
   );
 
   // Redirect to login if wallet is not connected
   useEffect(() => {
     if (!isConnected) {
-      router.push("/login");
+      router.push("/");
     }
   }, [isConnected, router]);
 
   // Show loading state while checking connection
   if (!isConnected) {
     return (
-      <div
-        className="h-screen w-screen bg-gray-900 flex items-center justify-center"
-        style={{ background: "#1a1a1a" }}
-      >
-        <div className="text-white text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <p>Checking wallet connection...</p>
-        </div>
+      <div className="flex items-center justify-center h-screen bg-gray-900">
+        <div className="text-white text-xl">Checking wallet connection...</div>
       </div>
     );
   }
 
   // Add handlers to nodes
-  const nodesWithHandlers = nodes.map((node) => ({
+  const nodesWithHandlers = nodes.map((node: Node) => ({
     ...node,
     data: {
       ...node.data,
@@ -325,41 +261,9 @@ function PlaygroundFlow() {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         nodeTypes={nodeTypes}
-        nodesDraggable={true}
-        nodesConnectable={true}
-        elementsSelectable={true}
         fitView
-        style={{ background: "#1a1a1a" }}
-      >
-        <Background
-          variant={BackgroundVariant.Dots}
-          gap={20}
-          size={1}
-          color="#333333"
-        />
-        <Controls
-          style={{
-            background: "#2d2d2d",
-            border: "1px solid #444",
-            borderRadius: "8px",
-          }}
-        />
-        <MiniMap
-          nodeColor="#666"
-          nodeStrokeColor="#888"
-          nodeStrokeWidth={1}
-          style={{
-            background: "#2d2d2d",
-            border: "1px solid #444",
-            borderRadius: "8px",
-          }}
-        />
-
-        {/* Wallet connector in top right */}
-        <div className="absolute top-4 right-4 z-50">
-          <PlaygroundMetaMaskConnector />
-        </div>
-      </ReactFlow>
+        className="bg-gray-900"
+      />
     </div>
   );
 }
