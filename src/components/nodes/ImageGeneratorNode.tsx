@@ -13,6 +13,8 @@ interface ImageGeneratorNodeProps {
     preference?: "anime" | "photography" | "graphic" | "cinematic";
     negative_prompt?: string;
     isGenerating?: boolean;
+    baseImageUrl?: string; // Add base image URL
+    isSelected?: boolean; // Add selection state
     onGenerate?: (
       nodeId: string,
       prompt: string,

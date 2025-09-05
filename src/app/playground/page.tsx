@@ -181,7 +181,36 @@ function PlaygroundFlow() {
       });
 
       try {
-        console.log('Generating image with prompt:', prompt);
+        // Find connected base image if any
+        const connectedImageEdge = edges.find((edge: Edge) => 
+          edge.target === nodeId && edge.targetHandle === "baseImage"
+        );
+        
+        let baseImageUrl = options.baseImageUrl;
+        if (connectedImageEdge) {
+          const sourceNode = nodes.find((node: Node) => node.id === connectedImageEdge.source);
+          if (sourceNode?.data?.imageUrl) {
+            baseImageUrl = sourceNode.data.imageUrl;
+            
+            // Update the generator node to show the base image
+            setNodes((nds: Node[]) =>
+              nds.map((node: Node) =>
+                node.id === nodeId
+                  ? { ...node, data: { ...node.data, baseImageUrl } }
+                  : node,
+              ),
+            );
+          }
+        }
+
+        // Modify prompt to include base image context if available
+        let enhancedPrompt = prompt;
+        if (baseImageUrl) {
+          enhancedPrompt = `Create a lifestyle avatar holding, using, or interacting with the product/item shown in the reference image. ${prompt}`;
+        }
+
+        console.log('Generating image with prompt:', enhancedPrompt);
+        console.log('Base image URL:', baseImageUrl);
         
         // Use the hook to generate the image
         const result = await generateImage(enhancedPrompt, {
@@ -254,6 +283,22 @@ function PlaygroundFlow() {
     [generateImage, error, edges, setNodes],
   );
 
+  const onNodeClick = useCallback(
+    (event: React.MouseEvent, node: Node) => {
+      // Update selection state for all nodes
+      setNodes((nds: Node[]) =>
+        nds.map((n: Node) => ({
+          ...n,
+          data: {
+            ...n.data,
+            isSelected: n.id === node.id,
+          },
+        })),
+      );
+    },
+    [setNodes],
+  );
+
   // Redirect to login if wallet is not connected
   useEffect(() => {
     if (!isConnected) {
@@ -261,7 +306,7 @@ function PlaygroundFlow() {
     }
   }, [isConnected, router]);
 
-  // Show loading state while checking connection
+    // Show loading state while checking connection
   if (!isConnected) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-900">
@@ -269,6 +314,8 @@ function PlaygroundFlow() {
       </div>
     );
   }
+
+  // Add handlers to nodes
 
   // Add handlers to nodes
   const nodesWithHandlers = nodes.map((node: Node) => ({
