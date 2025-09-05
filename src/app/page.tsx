@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import BentoGrid from "@/components/BentoGrid";
 
 // Dynamically import Dither to avoid SSR issues with Three.js
 const Dither = dynamic(() => import("@/components/Dither"), {
@@ -17,7 +18,7 @@ export default function Home() {
   };
 
   return (
-    <div className="relative w-full h-screen overflow-hidden">
+    <div className="relative w-full min-h-screen overflow-hidden">
       {/* Dither Background */}
       <div className="absolute inset-0 z-0">
         <Dither
@@ -33,7 +34,7 @@ export default function Home() {
       </div>
 
       {/* Content Overlay */}
-      <div className="relative z-10 flex flex-col items-center justify-center h-full px-6 text-white">
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 text-white">
         {/* Header */}
         <header className="absolute top-0 left-0 right-0 z-20 p-6">
           <div className="flex justify-between items-center max-w-7xl mx-auto">
@@ -64,7 +65,7 @@ export default function Home() {
         </header>
 
         {/* Main Content */}
-        <div className="text-center space-y-8 max-w-4xl mx-auto">
+        <div className="text-center space-y-8 max-w-4xl mx-auto pt-32 md:pt-40">
           <div className="space-y-4">
             <h1 className="text-6xl md:text-8xl font-bold tracking-tight">
               Create AI
@@ -77,17 +78,33 @@ export default function Home() {
               The next generation AI avatar playground for B2B and B2C
               businesses.
             </p>
-          </div>{" "}
-          {/* Features Grid */}
+          </div>
         </div>
 
-        {/* Footer */}
-        <footer className="absolute bottom-0 left-0 right-0 p-6">
-          <div className="flex justify-center items-center text-white/50 text-sm">
-            <p>© 2025 Base0. Powered by AI and Web3.</p>
+        {/* Bento Grid Features Section */}
+        <div id="features" className="w-full mt-16 mb-16">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+              Powered by{" "}
+              <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                AI Innovation
+              </span>
+            </h2>
+            <p className="text-lg text-white/70 max-w-2xl mx-auto">
+              Experience the future of AI-powered creativity with cutting-edge
+              models and tools
+            </p>
           </div>
-        </footer>
+          <BentoGrid />
+        </div>
       </div>
+
+      {/* Footer */}
+      <footer className="relative z-10 p-6 bg-black/20 backdrop-blur-sm">
+        <div className="flex justify-center items-center text-white/50 text-sm">
+          <p>© 2025 Base0. Powered by AI and Web3.</p>
+        </div>
+      </footer>
     </div>
   );
 }

@@ -22,8 +22,8 @@ const nextConfig: NextConfig = {
         permanent: false,
       },
       {
-        source: "/feedback",
-        destination: "https://forms.gle/base0feedback",
+        source: "/learn",
+        destination: "https://www.post-bridge.com/growth-guide/start-here",
         permanent: false,
       },
     ];
