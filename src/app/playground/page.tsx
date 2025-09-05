@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState } from "react";
 import ReactFlow, {
   Node,
   Edge,
@@ -12,59 +12,99 @@ import ReactFlow, {
   Background,
   BackgroundVariant,
   MiniMap,
-  Panel,
   NodeTypes,
   ReactFlowProvider,
 } from "reactflow";
 import "reactflow/dist/style.css";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ImageNode, ImageNodeData } from "@/components/ImageNode";
-import { Card } from "@/components/ui/card";
-import { WalletConnector } from "@/components/WalletConnector";
+import { LoadImageNode } from "@/components/nodes/LoadImageNode";
+import { GeminiImageNode } from "@/components/nodes/GeminiImageNode";
+import { PreviewImageNode } from "@/components/nodes/PreviewImageNode";
+import { PreviewAnyNode } from "@/components/nodes/PreviewAnyNode";
+import { PlaygroundMetaMaskConnector } from "@/components/PlaygroundMetaMaskConnector";
+import { useSynapseStorage } from "@/hooks/useSynapseStorage";
 import { useAccount } from "wagmi";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 const nodeTypes: NodeTypes = {
-  imageNode: ImageNode,
+  loadImage: LoadImageNode,
+  geminiImage: GeminiImageNode,
+  previewImage: PreviewImageNode,
+  previewAny: PreviewAnyNode,
 };
 
-const initialNodes: Node<ImageNodeData>[] = [
+const initialNodes: Node[] = [
   {
-    id: "1",
-    type: "imageNode",
-    position: { x: 400, y: 200 },
-    data: { nodeType: "avatar", nodeId: "1" },
+    id: "load-1",
+    type: "loadImage",
+    position: { x: 100, y: 150 },
+    data: { onFileUpload: null },
+  },
+  {
+    id: "gemini-1",
+    type: "geminiImage",
+    position: { x: 500, y: 100 },
+    data: {
+      prompt:
+        "Inflatable, 3D render, shiny, glossy, soft, rounded edges, studio lighting, isolated on a blue background",
+      onGenerate: null,
+    },
+  },
+  {
+    id: "preview-1",
+    type: "previewImage",
+    position: { x: 950, y: 150 },
+    data: { title: "Preview Image" },
+  },
+  {
+    id: "preview-any-1",
+    type: "previewAny",
+    position: { x: 950, y: 450 },
+    data: { response: "Empty response from Gemini model..." },
   },
 ];
 
-const initialEdges: Edge[] = [];
+const initialEdges: Edge[] = [
+  {
+    id: "load-to-gemini",
+    source: "load-1",
+    target: "gemini-1",
+    sourceHandle: "image",
+    targetHandle: "image",
+    style: { stroke: "#ffffff", strokeWidth: 2 },
+  },
+  {
+    id: "gemini-to-preview",
+    source: "gemini-1",
+    target: "preview-1",
+    sourceHandle: "output",
+    targetHandle: "image",
+    style: { stroke: "#ffffff", strokeWidth: 2 },
+  },
+  {
+    id: "gemini-to-any",
+    source: "gemini-1",
+    target: "preview-any-1",
+    sourceHandle: "output",
+    targetHandle: "source",
+    style: { stroke: "#ffffff", strokeWidth: 2 },
+    type: "smoothstep",
+  },
+];
 
 function PlaygroundFlow() {
-  const { isConnected } = useAccount();
-  const router = useRouter();
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const [showPromptModal, setShowPromptModal] = useState(false);
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-  const [prompt, setPrompt] = useState("");
-  const [instruction, setInstruction] = useState("");
-  const [connectionContext, setConnectionContext] = useState<{
-    sourceId: string;
-    targetId: string;
-  } | null>(null);
-  const [loadingProgress, setLoadingProgress] = useState(0);
-
-  // Redirect to home if not connected
-  useEffect(() => {
-    // if (!isConnected) {
-    //   router.push('/');
-    // }
-  }, [isConnected, router]);
+  const { address, isConnected } = useAccount();
+  const router = useRouter();
+  const {
+    storeImage,
+    isStoring,
+    isInitialized: synapseInitialized,
+  } = useSynapseStorage();
 
   const onConnect = useCallback(
     (params: Connection) => {
-      // Add edge first
       setEdges((eds) =>
         addEdge(
           {
@@ -74,33 +114,9 @@ function PlaygroundFlow() {
           eds,
         ),
       );
-
-      // Trigger prompt modal for connection context
-      if (params.source && params.target) {
-        setConnectionContext({
-          sourceId: params.source,
-          targetId: params.target,
-        });
-        setShowPromptModal(true);
-      }
     },
     [setEdges],
   );
-
-  const addNode = useCallback(() => {
-    const newNodeId = `${nodes.length + 1}`;
-    const newNode: Node<ImageNodeData> = {
-      id: newNodeId,
-      type: "imageNode",
-      position: { x: Math.random() * 400 + 100, y: Math.random() * 300 + 100 },
-      data: {
-        nodeType: "avatar",
-        nodeId: newNodeId,
-        onFileUpload: handleFileUpload,
-      },
-    };
-    setNodes((nds) => [...nds, newNode]);
-  }, [nodes.length, setNodes]);
 
   const handleFileUpload = useCallback(
     (file: File, nodeId: string) => {
@@ -110,7 +126,7 @@ function PlaygroundFlow() {
         setNodes((nds) =>
           nds.map((node) =>
             node.id === nodeId
-              ? { ...node, data: { ...node.data, baseObject: imageUrl } }
+              ? { ...node, data: { ...node.data, imageUrl } }
               : node,
           ),
         );
@@ -120,27 +136,9 @@ function PlaygroundFlow() {
     [setNodes],
   );
 
-  const handleDeleteNode = useCallback(
-    (nodeId: string) => {
-      setNodes((nds) => nds.filter((node) => node.id !== nodeId));
-      setEdges((eds) =>
-        eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId),
-      );
-    },
-    [setNodes, setEdges],
-  );
-
-  const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
-    setSelectedNodeId(node.id);
-  }, []);
-
-  const generateImage = useCallback(
-    async (
-      nodeId: string,
-      prompt: string,
-      instruction?: string,
-      baseObject?: string,
-    ) => {
+  const handleGenerate = useCallback(
+    async (nodeId: string, prompt: string) => {
+      // Set generating state
       setNodes((nds) =>
         nds.map((node) =>
           node.id === nodeId
@@ -149,307 +147,192 @@ function PlaygroundFlow() {
         ),
       );
 
-      // Start loading counter animation
-      setLoadingProgress(0);
-      const interval = setInterval(() => {
-        setLoadingProgress((prev) => {
-          if (prev >= 100) {
-            clearInterval(interval);
-            return 100;
-          }
-          return prev + Math.random() * 15 + 5; // Random increment between 5-20
-        });
-      }, 200);
-
       try {
+        // Find connected image input
+        const geminiNode = nodes.find((n) => n.id === nodeId);
+        const connectedEdge = edges.find(
+          (e) => e.target === nodeId && e.targetHandle === "image",
+        );
+        let baseObject = "";
+
+        if (connectedEdge) {
+          const sourceNode = nodes.find((n) => n.id === connectedEdge.source);
+          if (sourceNode?.data.imageUrl) {
+            baseObject = sourceNode.data.imageUrl;
+          }
+        }
+
         const response = await fetch("/api/generate-image", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt, instruction, baseObject }),
+          body: JSON.stringify({
+            prompt,
+            baseObject: baseObject || undefined,
+            walletAddress: address,
+          }),
         });
 
         const result = await response.json();
 
-        // Complete the loading animation
-        clearInterval(interval);
-        setLoadingProgress(100);
+        // Update preview nodes with generated image
+        setNodes((nds) =>
+          nds.map((node) => {
+            if (node.id === nodeId) {
+              return { ...node, data: { ...node.data, isGenerating: false } };
+            }
 
-        setTimeout(() => {
-          if (result.imageUrl) {
-            setNodes((nds) =>
-              nds.map((node) =>
-                node.id === nodeId
-                  ? {
-                      ...node,
-                      data: {
-                        ...node.data,
-                        imageUrl: result.imageUrl,
-                        isGenerating: false,
-                      },
-                    }
-                  : node,
-              ),
+            // Update connected preview nodes
+            const isConnectedPreview = edges.some(
+              (e) => e.source === nodeId && e.target === node.id,
             );
-          }
-          setLoadingProgress(0);
-        }, 500);
+
+            if (isConnectedPreview) {
+              if (node.type === "previewImage") {
+                return {
+                  ...node,
+                  data: {
+                    ...node.data,
+                    imageUrl: result.imageUrl,
+                    filecoinStorage: result.filecoinStorage || null,
+                  },
+                };
+              }
+              if (node.type === "previewAny") {
+                const responseText = result.imageUrl
+                  ? "Image generated successfully!"
+                  : result.error || "Generation failed";
+                const filecoinInfo = result.filecoinStorage
+                  ? `\nStored on Filecoin: ${result.filecoinStorage.pieceCid.slice(0, 8)}...`
+                  : "\nFilecoin storage: Not available";
+
+                return {
+                  ...node,
+                  data: {
+                    ...node.data,
+                    response: responseText + filecoinInfo,
+                    filecoinStorage: result.filecoinStorage || null,
+                  },
+                };
+              }
+            }
+
+            return node;
+          }),
+        );
       } catch (error) {
         console.error("Failed to generate image:", error);
-        clearInterval(interval);
+
+        // Update error state
         setNodes((nds) =>
-          nds.map((node) =>
-            node.id === nodeId
-              ? { ...node, data: { ...node.data, isGenerating: false } }
-              : node,
-          ),
+          nds.map((node) => {
+            if (node.id === nodeId) {
+              return { ...node, data: { ...node.data, isGenerating: false } };
+            }
+
+            const isConnectedPreview = edges.some(
+              (e) =>
+                e.source === nodeId &&
+                e.target === node.id &&
+                node.type === "previewAny",
+            );
+
+            if (isConnectedPreview) {
+              return {
+                ...node,
+                data: {
+                  ...node.data,
+                  response: `Error: ${error instanceof Error ? error.message : "Generation failed"}`,
+                },
+              };
+            }
+
+            return node;
+          }),
         );
-        setLoadingProgress(0);
       }
     },
-    [setNodes],
+    [nodes, edges, setNodes],
   );
 
-  const handlePromptSubmit = useCallback(() => {
-    if (prompt.trim()) {
-      let targetNodeId = selectedNodeId;
-      let baseObject = "";
-
-      // Handle connection context
-      if (connectionContext) {
-        const sourceNode = nodes.find(
-          (n) => n.id === connectionContext.sourceId,
-        );
-        const targetNode = nodes.find(
-          (n) => n.id === connectionContext.targetId,
-        );
-
-        if (
-          sourceNode?.data.nodeType === "upload" &&
-          sourceNode.data.baseObject
-        ) {
-          baseObject = sourceNode.data.baseObject;
-        }
-
-        targetNodeId = connectionContext.targetId;
-      }
-
-      // If no target node is selected, find the first available avatar node
-      if (!targetNodeId) {
-        const avatarNode = nodes.find(
-          (node) => node.data.nodeType === "avatar" && !node.data.imageUrl,
-        );
-        targetNodeId = avatarNode?.id || nodes[0]?.id;
-      }
-
-      if (targetNodeId) {
-        generateImage(
-          targetNodeId,
-          prompt,
-          instruction || undefined,
-          baseObject || undefined,
-        );
-      }
-
-      // Reset form
-      setPrompt("");
-      setInstruction("");
-      setShowPromptModal(false);
-      setSelectedNodeId(null);
-      setConnectionContext(null);
-    }
-  }, [
-    selectedNodeId,
-    prompt,
-    instruction,
-    connectionContext,
-    nodes,
-    generateImage,
-  ]);
-
+  // Redirect to login if wallet is not connected
   useEffect(() => {
-    const handleKeyPress = (event: KeyboardEvent) => {
-      if (event.key.toLowerCase() === "p" && selectedNodeId) {
-        event.preventDefault();
-        setShowPromptModal(true);
-      }
-      if (event.key === "Escape") {
-        setShowPromptModal(false);
-        setPrompt("");
-      }
-    };
+    if (!isConnected) {
+      router.push("/login");
+    }
+  }, [isConnected, router]);
 
-    window.addEventListener("keydown", handleKeyPress);
-    return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [selectedNodeId]);
+  // Show loading state while checking connection
+  if (!isConnected) {
+    return (
+      <div
+        className="h-screen w-screen bg-gray-900 flex items-center justify-center"
+        style={{ background: "#1a1a1a" }}
+      >
+        <div className="text-white text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <p>Checking wallet connection...</p>
+        </div>
+      </div>
+    );
+  }
 
-  // Add file upload and delete handlers to existing nodes
+  // Add handlers to nodes
   const nodesWithHandlers = nodes.map((node) => ({
     ...node,
     data: {
       ...node.data,
       onFileUpload: handleFileUpload,
-      onDeleteNode: handleDeleteNode,
-      onAddNode: addNode,
-      loadingProgress: node.data.isGenerating ? loadingProgress : undefined,
-      nodeId: node.id,
+      onGenerate: handleGenerate,
     },
   }));
 
-  // Show loading state while checking connection
-//   if (!isConnected) {
-//     return (
-//       <div className="h-screen w-screen bg-black flex items-center justify-center">
-//         <div className="text-white text-center">
-//           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-//           <p>Checking wallet connection...</p>
-//         </div>
-//       </div>
-//     );
-//   }
-
   return (
-    <div className="h-screen w-screen relative bg-black">
-      {/* Header */}
-      <div className="absolute top-0 left-0 right-0 z-20 bg-black/90 backdrop-blur-md border-b border-white/10">
-        <div className="flex items-center justify-between p-4 relative">
-          <div className="flex items-center space-x-8">
-            <div>
-              <h1 className="text-xl font-bold text-white">BASE0</h1>
-              <p className="text-xs text-white/50">AI Avatar Playground</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <Button 
-              onClick={() => setShowPromptModal(true)} 
-              className="bg-white/10 text-white border border-white/20 hover:bg-white/20 rounded-full px-6 py-2"
-            >
-              Generate Avatar
-            </Button>
-            <WalletConnector />
-          </div>
+    <div
+      className="h-screen w-screen bg-gray-900"
+      style={{ background: "#1a1a1a" }}
+    >
+      <ReactFlow
+        nodes={nodesWithHandlers}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        nodeTypes={nodeTypes}
+        nodesDraggable={true}
+        nodesConnectable={true}
+        elementsSelectable={true}
+        fitView
+        style={{ background: "#1a1a1a" }}
+      >
+        <Background
+          variant={BackgroundVariant.Dots}
+          gap={20}
+          size={1}
+          color="#333333"
+        />
+        <Controls
+          style={{
+            background: "#2d2d2d",
+            border: "1px solid #444",
+            borderRadius: "8px",
+          }}
+        />
+        <MiniMap
+          nodeColor="#666"
+          nodeStrokeColor="#888"
+          nodeStrokeWidth={1}
+          style={{
+            background: "#2d2d2d",
+            border: "1px solid #444",
+            borderRadius: "8px",
+          }}
+        />
+
+        {/* Wallet connector in top right */}
+        <div className="absolute top-4 right-4 z-50">
+          <PlaygroundMetaMaskConnector />
         </div>
-      </div>
-
-      {/* Playground */}
-      <div className="pt-16 h-screen">
-        <ReactFlow
-          nodes={nodesWithHandlers}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          onNodeClick={onNodeClick}
-          nodeTypes={nodeTypes}
-          nodesDraggable={true}
-          nodesConnectable={true}
-          elementsSelectable={true}
-          style={{ background: "#111111", height: "calc(100vh - 64px)" }}
-        >
-          <Background
-            variant={BackgroundVariant.Dots}
-            gap={20}
-            size={1}
-            color="#333333"
-          />
-          <Controls
-            style={{
-              background: "#111111",
-              border: "1px solid rgba(255,255,255,0.2)",
-              boxShadow: "0 4px 8px rgba(0,0,0,0.3)",
-            }}
-          />
-          <MiniMap
-            nodeColor="#ffffff"
-            nodeStrokeColor="#111111"
-            nodeStrokeWidth={2}
-            style={{
-              background: "#111111",
-              border: "1px solid rgba(255,255,255,0.2)",
-              boxShadow: "0 4px 8px rgba(0,0,0,0.3)",
-            }}
-          />
-          <Panel position="top-left" className="bg-black/80 rounded-lg p-4 m-4">
-            <div className="text-white text-sm space-y-2">
-              <p className="font-semibold">Quick Tips:</p>
-              <p>• Click nodes to select and generate</p>
-              <p>• Press 'P' to open prompt modal</p>
-              <p>• Drag to connect nodes</p>
-            </div>
-          </Panel>
-        </ReactFlow>
-      </div>
-
-      {/* Prompt Modal */}
-      {showPromptModal && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-md">
-          <div className="bg-black/90 rounded-xl p-8 w-full max-w-md shadow-2xl border border-white/20">
-            <div className="space-y-6">
-              <div className="text-center">
-                <h3 className="text-2xl font-bold text-white">
-                  Generate Avatar
-                </h3>
-                {connectionContext && (
-                  <p className="text-sm text-white/60 mt-2">
-                    Objects will be combined
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <input
-                    type="text"
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    onKeyDown={(e) =>
-                      e.key === "Enter" && handlePromptSubmit()
-                    }
-                    placeholder="Describe your avatar..."
-                    className="w-full p-4 bg-black/40 border border-white/20 focus:border-white/50 focus:outline-none text-white rounded-lg text-sm"
-                    autoFocus
-                  />
-                </div>
-
-                {connectionContext && (
-                  <div>
-                    <input
-                      type="text"
-                      value={instruction}
-                      onChange={(e) => setInstruction(e.target.value)}
-                      onKeyDown={(e) =>
-                        e.key === "Enter" && handlePromptSubmit()
-                      }
-                      placeholder="How should they interact with the object?"
-                      className="w-full p-4 bg-black/40 border border-white/20 focus:border-white/50 focus:outline-none text-white rounded-lg text-sm"
-                    />
-                  </div>
-                )}
-              </div>
-
-              <div className="flex gap-3 pt-2">
-                <button
-                  onClick={handlePromptSubmit}
-                  disabled={!prompt.trim()}
-                  className="flex-1 bg-white text-black hover:bg-white/90 disabled:opacity-30 py-3 rounded-lg text-sm font-medium"
-                >
-                  Generate
-                </button>
-                <button
-                  onClick={() => {
-                    setShowPromptModal(false);
-                    setPrompt("");
-                    setInstruction("");
-                    setConnectionContext(null);
-                  }}
-                  className="px-4 py-3 text-white/70 hover:text-white border border-white/20 rounded-lg text-sm font-medium"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      </ReactFlow>
     </div>
   );
 }
