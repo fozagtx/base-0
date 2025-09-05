@@ -17,7 +17,7 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { LoadImageNode } from "@/components/nodes/LoadImageNode";
-import { GeminiImageNode } from "@/components/nodes/GeminiImageNode";
+import { ImageGeneratorNode } from "@/components/nodes/ImageGeneratorNode";
 import { PreviewImageNode } from "@/components/nodes/PreviewImageNode";
 import { PreviewAnyNode } from "@/components/nodes/PreviewAnyNode";
 import { PlaygroundMetaMaskConnector } from "@/components/PlaygroundMetaMaskConnector";
@@ -28,7 +28,7 @@ import { useEffect } from "react";
 
 const nodeTypes: NodeTypes = {
   loadImage: LoadImageNode,
-  geminiImage: GeminiImageNode,
+  imageGenerator: ImageGeneratorNode,
   previewImage: PreviewImageNode,
   previewAny: PreviewAnyNode,
 };
@@ -41,12 +41,15 @@ const initialNodes: Node[] = [
     data: { onFileUpload: null },
   },
   {
-    id: "gemini-1",
-    type: "geminiImage",
+    id: "generator-1",
+    type: "imageGenerator",
     position: { x: 500, y: 100 },
     data: {
-      prompt:
-        "Inflatable, 3D render, shiny, glossy, soft, rounded edges, studio lighting, isolated on a blue background",
+      prompt: "A beautiful cyberpunk city at night with neon lights",
+      width: 512,
+      height: 512,
+      version: "standard",
+      preference: "photography",
       onGenerate: null,
     },
   },
@@ -66,24 +69,24 @@ const initialNodes: Node[] = [
 
 const initialEdges: Edge[] = [
   {
-    id: "load-to-gemini",
+    id: "load-to-generator",
     source: "load-1",
-    target: "gemini-1",
+    target: "generator-1",
     sourceHandle: "image",
-    targetHandle: "image",
+    targetHandle: "baseImage",
     style: { stroke: "#ffffff", strokeWidth: 2 },
   },
   {
-    id: "gemini-to-preview",
-    source: "gemini-1",
+    id: "generator-to-preview",
+    source: "generator-1",
     target: "preview-1",
     sourceHandle: "output",
     targetHandle: "image",
     style: { stroke: "#ffffff", strokeWidth: 2 },
   },
   {
-    id: "gemini-to-any",
-    source: "gemini-1",
+    id: "generator-to-any",
+    source: "generator-1",
     target: "preview-any-1",
     sourceHandle: "output",
     targetHandle: "source",
@@ -137,7 +140,17 @@ function PlaygroundFlow() {
   );
 
   const handleGenerate = useCallback(
-    async (nodeId: string, prompt: string) => {
+    async (
+      nodeId: string,
+      prompt: string,
+      options: {
+        width?: number;
+        height?: number;
+        image_generator_version?: "standard" | "hd" | "genius";
+        genius_preference?: "anime" | "photography" | "graphic" | "cinematic";
+        negative_prompt?: string;
+      } = {},
+    ) => {
       // Set generating state
       setNodes((nds) =>
         nds.map((node) =>
@@ -148,10 +161,9 @@ function PlaygroundFlow() {
       );
 
       try {
-        // Find connected image input
-        const geminiNode = nodes.find((n) => n.id === nodeId);
+        // Find connected base image input
         const connectedEdge = edges.find(
-          (e) => e.target === nodeId && e.targetHandle === "image",
+          (e) => e.target === nodeId && e.targetHandle === "baseImage",
         );
         let baseObject = "";
 
@@ -169,8 +181,19 @@ function PlaygroundFlow() {
             prompt,
             baseObject: baseObject || undefined,
             walletAddress: address,
+            width: options.width || 512,
+            height: options.height || 512,
+            image_generator_version:
+              options.image_generator_version || "standard",
+            genius_preference: options.genius_preference || "photography",
+            negative_prompt: options.negative_prompt || undefined,
           }),
         });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || `HTTP ${response.status}`);
+        }
 
         const result = await response.json();
 
@@ -198,18 +221,22 @@ function PlaygroundFlow() {
                 };
               }
               if (node.type === "previewAny") {
-                const responseText = result.imageUrl
-                  ? "Image generated successfully!"
-                  : result.error || "Generation failed";
+                const responseText =
+                  result.success && result.imageUrl
+                    ? "Image generated successfully with DeepAI!"
+                    : result.error || "Generation failed";
+                const metadataInfo = result.metadata
+                  ? `\nGenerated: ${new Date(result.metadata.generatedAt).toLocaleTimeString()}`
+                  : "";
                 const filecoinInfo = result.filecoinStorage
                   ? `\nStored on Filecoin: ${result.filecoinStorage.pieceCid.slice(0, 8)}...`
-                  : "\nFilecoin storage: Not available";
+                  : "";
 
                 return {
                   ...node,
                   data: {
                     ...node.data,
-                    response: responseText + filecoinInfo,
+                    response: responseText + metadataInfo + filecoinInfo,
                     filecoinStorage: result.filecoinStorage || null,
                   },
                 };

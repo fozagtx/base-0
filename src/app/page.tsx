@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import VideoPlayer from "@/components/VideoPlayer";
 
 // Dynamically import Dither to avoid SSR issues with Three.js
 const Dither = dynamic(() => import("@/components/Dither"), {
@@ -78,20 +77,14 @@ export default function Home() {
               The next generation AI avatar playground for B2B and B2C
               businesses.
             </p>
-          </div>
-
-          {/* Video Player Section */}
-          <div className="pt-16 max-w-4xl mx-auto">
-            <VideoPlayer />
-          </div>
-
+          </div>{" "}
           {/* Features Grid */}
         </div>
 
         {/* Footer */}
         <footer className="absolute bottom-0 left-0 right-0 p-6">
           <div className="flex justify-center items-center text-white/50 text-sm">
-            <p>© 2024 Base0. Powered by AI and Web3.</p>
+            <p>© 2025 Base0. Powered by AI and Web3.</p>
           </div>
         </footer>
       </div>
