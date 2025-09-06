@@ -1,0 +1,888 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "/home/devpima/Desktop/base0/node_modules/solidity-cborutils/contracts/CBOR.sol": {
+      "lastModificationDate": 1757130796527,
+      "contentHash": "f6fe9c5e14ab5496490b8d36007fdffd",
+      "sourceName": "solidity-cborutils/contracts/CBOR.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "@ensdomains/buffer/contracts/Buffer.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.4"
+      ],
+      "artifacts": [
+        "CBOR"
+      ]
+    },
+    "/home/devpima/Desktop/base0/node_modules/filecoin-solidity-api/contracts/v0.8/MarketAPI.sol": {
+      "lastModificationDate": 1757130796525,
+      "contentHash": "a61dddbf4ae6dccc5ab9e9525a06163e",
+      "sourceName": "filecoin-solidity-api/contracts/v0.8/MarketAPI.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "./types/MarketTypes.sol",
+        "./cbor/MarketCbor.sol",
+        "./cbor/BytesCbor.sol",
+        "./cbor/FilecoinCbor.sol",
+        "./types/CommonTypes.sol",
+        "./utils/Misc.sol",
+        "./utils/Actor.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.17"
+      ],
+      "artifacts": [
+        "MarketAPI"
+      ]
+    },
+    "/home/devpima/Desktop/base0/node_modules/filecoin-solidity-api/contracts/v0.8/types/CommonTypes.sol": {
+      "lastModificationDate": 1757130796525,
+      "contentHash": "d5adc1216821345c658d211fc7e0c5a1",
+      "sourceName": "filecoin-solidity-api/contracts/v0.8/types/CommonTypes.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.17"
+      ],
+      "artifacts": [
+        "CommonTypes"
+      ]
+    },
+    "/home/devpima/Desktop/base0/node_modules/filecoin-solidity-api/contracts/v0.8/types/MarketTypes.sol": {
+      "lastModificationDate": 1757130796525,
+      "contentHash": "78b953aad1d4ccf63dd7cfdc9eeac7b1",
+      "sourceName": "filecoin-solidity-api/contracts/v0.8/types/MarketTypes.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "../cbor/BigIntCbor.sol",
+        "./CommonTypes.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.17"
+      ],
+      "artifacts": [
+        "MarketTypes"
+      ]
+    },
+    "/home/devpima/Desktop/base0/node_modules/filecoin-solidity-api/contracts/v0.8/types/AccountTypes.sol": {
+      "lastModificationDate": 1757130796525,
+      "contentHash": "d693659b1f08bc2323b4f9cb284b031e",
+      "sourceName": "filecoin-solidity-api/contracts/v0.8/types/AccountTypes.sol",
+      "solcConfig": {
+        "version": "0.8.23",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "./CommonTypes.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.17"
+      ],
+      "artifacts": [
+        "AccountTypes"
+      ]
+    },
+    "/home/devpima/Desktop/base0/node_modules/filecoin-solidity-api/contracts/v0.8/cbor/AccountCbor.sol": {
+      "lastModificationDate": 1757130796525,
+      "contentHash": "61ae65086bc0bce1efd0e7d162f26bfb",
+      "sourceName": "filecoin-solidity-api/contracts/v0.8/cbor/AccountCbor.sol",
+      "solcConfig": {
+        "version": "0.8.23",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "solidity-cborutils/contracts/CBOR.sol",
+        "../types/AccountTypes.sol",
+        "../utils/CborDecode.sol",
+        "../utils/Misc.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.17"
+      ],
+      "artifacts": [
+        "AccountCBOR"
+      ]
+    },
+    "/home/devpima/Desktop/base0/node_modules/filecoin-solidity-api/contracts/v0.8/cbor/MarketCbor.sol": {
+      "lastModificationDate": 1757130796525,
+      "contentHash": "886874d6161a48efc9a5efad7527f2e7",
+      "sourceName": "filecoin-solidity-api/contracts/v0.8/cbor/MarketCbor.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "solidity-cborutils/contracts/CBOR.sol",
+        "../types/MarketTypes.sol",
+        "../types/CommonTypes.sol",
+        "../utils/Misc.sol",
+        "../utils/FilAddresses.sol",
+        "../utils/CborDecode.sol",
+        "./FilecoinCbor.sol",
+        "./BigIntCbor.sol",
+        "./FilecoinCbor.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.17"
+      ],
+      "artifacts": [
+        "MarketCBOR"
+      ]
+    },
+    "/home/devpima/Desktop/base0/node_modules/filecoin-solidity-api/contracts/v0.8/cbor/BytesCbor.sol": {
+      "lastModificationDate": 1757130796525,
+      "contentHash": "1be7854e3a5f93a5d85fbd230286c86b",
+      "sourceName": "filecoin-solidity-api/contracts/v0.8/cbor/BytesCbor.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "solidity-cborutils/contracts/CBOR.sol",
+        "../utils/CborDecode.sol",
+        "../utils/Misc.sol",
+        "../types/CommonTypes.sol",
+        "./BigIntCbor.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.17"
+      ],
+      "artifacts": [
+        "BytesCBOR"
+      ]
+    },
+    "/home/devpima/Desktop/base0/node_modules/filecoin-solidity-api/contracts/v0.8/utils/BigInts.sol": {
+      "lastModificationDate": 1757130796525,
+      "contentHash": "65a4a6dd58ca078a2bedc2040f0b0b4f",
+      "sourceName": "filecoin-solidity-api/contracts/v0.8/utils/BigInts.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "../../vendor/solidity-BigNumber/src/BigNumbers.sol",
+        "../types/CommonTypes.sol",
+        "../utils/Misc.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.17"
+      ],
+      "artifacts": [
+        "BigInts"
+      ]
+    },
+    "/home/devpima/Desktop/base0/node_modules/filecoin-solidity-api/contracts/v0.8/utils/FilAddresses.sol": {
+      "lastModificationDate": 1757130796525,
+      "contentHash": "53a35abd8c166232278deffb315aadbf",
+      "sourceName": "filecoin-solidity-api/contracts/v0.8/utils/FilAddresses.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "../types/CommonTypes.sol",
+        "../utils/Leb128.sol",
+        "@ensdomains/buffer/contracts/Buffer.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.17"
+      ],
+      "artifacts": [
+        "FilAddresses"
+      ]
+    },
+    "/home/devpima/Desktop/base0/node_modules/filecoin-solidity-api/contracts/v0.8/utils/Misc.sol": {
+      "lastModificationDate": 1757130796525,
+      "contentHash": "e1dd9cd477d2237b2d4cbfac0f2a44ce",
+      "sourceName": "filecoin-solidity-api/contracts/v0.8/utils/Misc.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "../types/CommonTypes.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.17"
+      ],
+      "artifacts": [
+        "Misc"
+      ]
+    },
+    "/home/devpima/Desktop/base0/node_modules/@ensdomains/buffer/contracts/Buffer.sol": {
+      "lastModificationDate": 1757130796606,
+      "contentHash": "d3d00f20f206848f1e90d596ebcc557b",
+      "sourceName": "@ensdomains/buffer/contracts/Buffer.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.4"
+      ],
+      "artifacts": [
+        "Buffer"
+      ]
+    },
+    "/home/devpima/Desktop/base0/node_modules/filecoin-solidity-api/contracts/v0.8/cbor/FilecoinCbor.sol": {
+      "lastModificationDate": 1757130796525,
+      "contentHash": "c2caf4a67838c3798a3bc97655d5722c",
+      "sourceName": "filecoin-solidity-api/contracts/v0.8/cbor/FilecoinCbor.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "solidity-cborutils/contracts/CBOR.sol",
+        "@ensdomains/buffer/contracts/Buffer.sol",
+        "../utils/CborDecode.sol",
+        "../utils/Misc.sol",
+        "../types/CommonTypes.sol",
+        "../cbor/BigIntCbor.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.17"
+      ],
+      "artifacts": [
+        "FilecoinCBOR"
+      ]
+    },
+    "/home/devpima/Desktop/base0/node_modules/filecoin-solidity-api/contracts/v0.8/utils/Actor.sol": {
+      "lastModificationDate": 1757130796525,
+      "contentHash": "526091d57a5f98061924e2e99ceac9bd",
+      "sourceName": "filecoin-solidity-api/contracts/v0.8/utils/Actor.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "./Misc.sol",
+        "../types/CommonTypes.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.17"
+      ],
+      "artifacts": [
+        "Actor"
+      ]
+    },
+    "/home/devpima/Desktop/base0/node_modules/filecoin-solidity-api/contracts/v0.8/cbor/BigIntCbor.sol": {
+      "lastModificationDate": 1757130796525,
+      "contentHash": "26f7fa08119b4c202ea314cfa584d369",
+      "sourceName": "filecoin-solidity-api/contracts/v0.8/cbor/BigIntCbor.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "../types/CommonTypes.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.17"
+      ],
+      "artifacts": [
+        "BigIntCBOR"
+      ]
+    },
+    "/home/devpima/Desktop/base0/node_modules/filecoin-solidity-api/contracts/v0.8/utils/CborDecode.sol": {
+      "lastModificationDate": 1757130796525,
+      "contentHash": "1414e23b1c105ad5e21cfbf711612240",
+      "sourceName": "filecoin-solidity-api/contracts/v0.8/utils/CborDecode.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.17"
+      ],
+      "artifacts": [
+        "CBORDecoder"
+      ]
+    },
+    "/home/devpima/Desktop/base0/node_modules/filecoin-solidity-api/contracts/v0.8/utils/Leb128.sol": {
+      "lastModificationDate": 1757130796525,
+      "contentHash": "0d508965d24ad8d151c2868649079fd3",
+      "sourceName": "filecoin-solidity-api/contracts/v0.8/utils/Leb128.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "@ensdomains/buffer/contracts/Buffer.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.17"
+      ],
+      "artifacts": [
+        "Leb128"
+      ]
+    },
+    "/home/devpima/Desktop/base0/node_modules/filecoin-solidity-api/contracts/vendor/solidity-BigNumber/src/BigNumbers.sol": {
+      "lastModificationDate": 1757130796525,
+      "contentHash": "3221eb81f0a48b338671f7b6c1825aa6",
+      "sourceName": "filecoin-solidity-api/contracts/vendor/solidity-BigNumber/src/BigNumbers.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.18"
+      ],
+      "artifacts": [
+        "BigNumbers"
+      ]
+    },
+    "/home/devpima/Desktop/base0/contracts/FilecoinCIDStore.sol": {
+      "lastModificationDate": 1757131462464,
+      "contentHash": "fb683a2514a1ed340877c10d2674445b",
+      "sourceName": "contracts/FilecoinCIDStore.sol",
+      "solcConfig": {
+        "version": "0.8.20",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1000
+          },
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata",
+                "devdoc",
+                "userdoc",
+                "storageLayout",
+                "evm.gasEstimates"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          },
+          "metadata": {
+            "useLiteralContent": true
+          }
+        }
+      },
+      "imports": [
+        "filecoin-solidity-api/contracts/v0.8/MarketAPI.sol",
+        "filecoin-solidity-api/contracts/v0.8/types/CommonTypes.sol",
+        "filecoin-solidity-api/contracts/v0.8/types/MarketTypes.sol",
+        "filecoin-solidity-api/contracts/v0.8/utils/FilAddresses.sol",
+        "filecoin-solidity-api/contracts/v0.8/utils/BigInts.sol"
+      ],
+      "versionPragmas": [
+        "^0.8.20"
+      ],
+      "artifacts": [
+        "FilecoinCIDStore"
+      ]
+    }
+  }
+}
